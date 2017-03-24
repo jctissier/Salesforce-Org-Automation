@@ -1,0 +1,776 @@
+{% extends "layout.html" %}
+
+{# Custom Script #}
+{% block head_scripts %}
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/sb-admin.css')}}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/morris.css')}}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css')}}">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+
+
+    <script src="{{ url_for('static', filename='js/login/dashboard.js') }}"></script>
+
+    <!-- Used for code highlight -->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://balupton.github.com/jquery-syntaxhighlighter/scripts/jquery.syntaxhighlighter.min.js"></script>
+    <script type="text/javascript">$.SyntaxHighlighter.init();</script>
+
+    <!-- Styling for code block, scrollable right -->
+    <style>
+        ol {
+          overflow: auto;
+          word-wrap: normal;
+          white-space: pre;
+        }
+
+        .btn span.glyphicon {
+	        opacity: 0;
+        }
+        .btn.active span.glyphicon {
+            opacity: 1;
+        }
+
+
+    </style>
+
+{% endblock %}
+
+
+{# Login Form #}
+{% block body %}
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs" style="margin-left: 15px;display: none;" id="nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#dashboard" id="dashboard-tab">Dashboard</a></li>
+    <li><a data-toggle="tab" href="#package-xml" id="package-xml-tab">Package.xml</a></li>
+</ul>
+
+<div class="tab-content">
+
+    <div class="container-fluid tab-pane" id="dashboard">
+
+        <!-- Page Heading -->
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>
+                    <i class="fa fa-dashboard"></i> Dashboard: <small>{{ session.user }}</small>
+                    <button class="btn btn-danger btn-md pull-right" id="logout-btn" style="margin-bottom:40px;">
+                        <i class="fa fa-fw fa-power-off"></i> Log Out
+                    </button>
+                </h1>
+            </div>
+        </div>
+        <!-- /.row -->
+
+        {#  AJAX Loading gif  #}
+        <div class="row" style="padding-top: 15px;padding-bottom: 10px;" id="loading-gif">
+            <div class="col-lg-12">
+                <div class="alert alert-info" style="text-align: center;">
+                    <img src="{{ url_for('static', filename='loading.gif') }}" height="70" width="auto"/>
+                    <br>
+                    <i class="fa fa-info-circle"></i> Retrieving data from Salesforce...
+                </div>
+            </div>
+        </div>
+
+        {#  Error AJAX call  #}
+        <div class="row" style="padding-top: 15px;padding-bottom: 10px;display: none;" id="errorAlert">
+            <div class="col-lg-12">
+                <div class="alert alert-warning" style="text-align: center;">
+                    <i class="fa fa-exclamation-triangle"></i> Connection Error to Salesforce, Please Try Again!
+                </div>
+            </div>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-cogs fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-c_size"></div>
+                                    <div><b>Custom Objects</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/" id="panel-custom-object-btn">
+                            <div class="panel-footer">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-purple" style="border-color: #9370DB;">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-users fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-u_size"></div>
+                                    <div><b>Users</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/" id="panel-users-btn">
+                            <div class="panel-footer">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-black" style="border-color: black;">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-address-card fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-p_size"></div>
+                                    <div><b>Profiles</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/">
+                            <div class="panel-footer" id="panel-profiles-btn">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-cyan" style="border-color: #8ae3e0;">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-comments fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-ur_size"></div>
+                                    <div><b>Roles</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/">
+                            <div class="panel-footer" id="panel-roles-btn">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+    {#            <div class="row">#}
+                {#  Custom Objects #}
+                <div class="col-lg-3">
+                    <div class="panel panel-primary" id="panel-custom-object" style="display: none;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-cogs fa-fw"></i> Custom Objects
+                            (<b id="ajax-c_size_detail"></b>)
+                            </h3>
+                            <button style="margin-top:25px;" class="btn btn-primary btn-sm btn-md pull-right" id="panel-custom-object-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" data-toggle="table" data-search="true" data-search-text="" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead class="panel-primary">
+                                        <tr>
+                                            <th>API Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-custom-object-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button class="btn btn-primary btn-sm btn-md pull-right" id="panel-custom-object-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            {#   Users  #}
+                <div class="col-lg-3 custom-object">
+                    <div class="panel panel-purple" id="panel-users" style="display: none;border-color: #9370DB;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-users fa-fw"></i> Users (<b id="ajax-u_size_detail">43</b>) </h3>
+                        </div>
+                        <!-- TODO - search box for panel -->
+                        <div class="panel-body">
+                            <i class="glyphicon glyphicon-search pull-left" style="top:5px;font-size: 1.6em;transform: scaleX(-1);-moz-transform: scaleX(-1);-webkit-transform: scaleX(-1);-ms-transform: scaleX(-1);"></i>
+                            <input type="text" class="form-control pull-right" id="dev-table-filter" data-action="filter" data-filters="#search-users" placeholder="Search Users..." style="width: 93%;">
+                            <span class="clickable filter pull-right" data-toggle="tooltip" title="Toggle Search" data-container="body"></span>
+                        </div>
+                        <!-- search end -->
+
+                        <button style="margin-right:15px;background-color:#BA55D3;color: white;" class="btn btn-sm btn-md pull-right" id="panel-users-hide-btn">
+                            <i class="fa fa-arrow-circle-right"></i> Hide Details
+                        </button>
+
+
+                        <div class="panel-body" style="padding-top: 0px;">
+                            <div class="table-responsive" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped" id="search-users">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-users-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button style="background-color:#BA55D3;color: white;" class="btn btn-sm btn-md pull-right" id="panel-users-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {#   Profiles  #}
+                <div class="col-lg-3">
+                    <div class="panel panel-black" id="panel-profiles" style="display:none;border-color: black;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-address-card fa-fw"></i> Profiles (<b id="ajax-p_size_detail"></b>) </h3>
+                            <button style="margin-top:25px;background-color:black;color: white;" class="btn btn-sm btn-md pull-right" id="panel-profiles-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-profiles-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button style="background-color:black;color: white;" class="btn btn-sm btn-md pull-right" id="panel-profiles-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {#   Roles  #}
+                <div class="col-lg-3">
+                    <div class="panel panel-cyan" id="panel-roles" style="border-color: #8ae3e0;display: none;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-address-card fa-fw"></i> Roles (<b id="ajax-ur_size_detail"></b>) </h3>
+                            <button style="margin-top:25px;background-color:#8ae3e0;color: white;" class="btn btn-sm btn-md pull-right" id="panel-roles-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-roles-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button style="background-color:#8ae3e0;color: white;" class="btn btn-sm btn-md pull-right" id="panel-roles-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <!-- End of First Row Details -->
+
+            <div class="row">
+                {#       Second Row         #}
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-green" style="border-color: #5cb85c;">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-file-code-o fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-cl_size"></div>
+                                    <div><b>Apex Classes</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/">
+                            <div class="panel-footer" id="panel-classes-btn">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-yellow" style="border-color: #f0ad4e;">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-file-code-o fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-pa_size"></div>
+                                    <div><b>Apex Pages</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/">
+                            <div class="panel-footer" id="panel-pages-btn">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-red" style="border-color: #d9534f;">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-file-code-o fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-comp_size"></div>
+                                    <div><b>Apex Components</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/">
+                            <div class="panel-footer" id="panel-components-btn">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-heading" style="color: white;">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-file-code-o fa-5x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div class="huge" id="ajax-t_size"></div>
+                                    <div><b>Apex Triggers</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="#/">
+                            <div class="panel-footer" id="panel-triggers-btn">
+                                <span class="pull-left">View Details</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+
+
+            <div class="row">
+                {#   Apex Classes  #}
+                <div class="col-lg-3">
+                    <div class="panel panel-green" style="border-color: #5cb85c;display:none;" id="panel-classes">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-file-code-o fa-fw"></i> Apex Classes (<b id="ajax-cl_size_detail"></b>) </h3>
+                            <button style="margin-top:25px;background-color:#5cb85c;color: white;" class="btn btn-sm btn-md pull-right" id="panel-classes-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-classes-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button style="background-color:#5cb85c;color: white;" class="btn btn-sm btn-md pull-right" id="panel-classes-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {#   Apex Pages  #}
+                <div class="col-lg-3">
+                    <div class="panel panel-yellow" id="panel-pages" style="display:none;border-color: #f0ad4e;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-file-code-o fa-fw"></i> Apex Pages (<b id="ajax-pa_size_detail"></b>) </h3>
+                            <button style="margin-top:25px;background-color:#f0ad4e;color: white;" class="btn btn-sm btn-md pull-right" id="panel-pages-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-pages-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button style="background-color:#f0ad4e;color: white;" class="btn btn-sm btn-md pull-right" id="panel-pages-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {#   Apex Components  #}
+                <div class="col-lg-3">
+                    <div class="panel panel-red" id="panel-components" style="border-color: #d9534f;display: none;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-file-code-o fa-fw"></i> Apex Components (<b id="ajax-comp_size_detail"></b>) </h3>
+                             <button style="margin-top:25px;background-color:#d9534f;color: white;" class="btn btn-sm btn-md pull-right" id="panel-components-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-components-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button style="background-color:#d9534f;color: white;" class="btn btn-sm btn-md pull-right" id="panel-components-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {#   Apex Triggers  #}
+                <div class="col-lg-3">
+                    <div class="panel panel-info" id="panel-triggers" style="display: none;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><i class="fa fa-file-code-o fa-fw"></i> Apex Triggers (<b id="ajax-t_size_detail"></b>) </h3>
+                            <button style="margin-top:25px;background-color:#D2E8F5;color: white;" class="btn btn-sm btn-md pull-right" id="panel-triggers-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="table-responsive" style="margin-top: 45px;">
+                                <table class="table table-bordered table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="panel-triggers-detail">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button style="background-color:#D2E8F5;color: white;" class="btn btn-sm btn-md pull-right" id="panel-triggers-hide-btn">
+                                <i class="fa fa-arrow-circle-right"></i> Hide Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {#   End of panels     #}
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- End of Content -->
+    </div>
+    <!-- /.container-fluid - End of Dashboard-->
+
+
+    <!-- Create Package.xml -->
+    <div class="container-fluid tab-pane" id="package-xml">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                    <div class="panel panel-success">
+                        <!-- Default panel contents -->
+                        <div class="panel-heading" style="height: 51px;line-height: 2;"><b>Generate Package.xml</b></div>
+
+                        <!-- TODO - search box for panel -->
+                        <div class="panel-body" style="background: none;padding-top: 20px;">
+                            <i class="glyphicon glyphicon-search pull-left" style="top:5px;font-size: 1.6em;transform: scaleX(-1);-moz-transform: scaleX(-1);-webkit-transform: scaleX(-1);-ms-transform: scaleX(-1);"></i>
+                            <input type="text" class="form-control pull-right" id="dev-table-filter" data-action="filter" data-filters="#search-package-xml" placeholder="Search Metadata..." style="width: 90%;">
+                            <span class="clickable filter pull-right" data-toggle="tooltip" title="Toggle Search" data-container="body"></span>
+                        </div>
+
+{#                        <div class="panel-body" style="padding-top: 0px;">#}
+{#                            <div class="table-responsive" style="margin-top: 45px;">#}
+{#                                <table class="table table-bordered table-hover table-striped" id="search-package-xml">#}
+{#                                    <thead>#}
+{#                                        <tr>#}
+{#                                            <th style="width: 10%;">Add</th>#}
+{#                                            <th style="text-align: center;">Name</th>#}
+{#                                        </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody id="panel-users-detail-test">#}
+{#                                        <tr>#}
+{#                                            <td><input style="margin-right:10px;" type="checkbox" id="Custom_Object0" value="Custom_Object_Additional_Investigation__c"></td>#}
+{#                                            <td>Custom_Object_Additional_Investigation__c</td>#}
+{#                                        </tr>#}
+{#                                        <tr>#}
+{#                                            <td><input style="margin-right:10px;" type="checkbox" id="Custom_Object0" value="Custom_Object_Additional_Investigation__c"></td>#}
+{#                                            <td>Random</td>#}
+{#                                        </tr>#}
+{#                                    </tbody>#}
+{#                                </table>#}
+{#                            </div>#}
+{#                        </div>#}
+                        <!-- search end -->
+
+
+                        <!-- Bootstrap accordions -->
+
+                        <!-- Custom Objects -->
+                        <div class="panel panel-default" style="margin-bottom: 0px;">
+                            <div class="panel-heading">
+                                <div class="material-switch pull-right">
+                                    <input id="custom-objects-section" name="custom-objects-section" min type="checkbox" data-on="All" data-off="No" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-size="mini"/>
+                                    <label for="custom-objects-section" class="label-default"></label>
+                                </div>
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-custom-object" aria-expanded="true" class="">
+                                        <i style="margin-right: 5px;" class="glyphicon glyphicon-triangle-bottom"></i>
+                                        Custom Objects (<b id="ajax-c_size_preview"></b>)
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse-custom-object" class="panel-collapse collapse in" aria-expanded="true">
+                                <div class="panel-body">
+                                    <!-- content -->
+
+                                    <!-- TODO - remove if doesn't work -->
+                                    <table class="table table-bordered table-hover table-striped" id="search-package-xml">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center;width:10%;">
+                                                    <div class="btn-group" data-toggle="buttons" style="">
+                                                        <label class="btn btn-primary active" style="height: 26px;padding-left: 6px;padding-right: 6px;padding-bottom: 3px;padding-top: 3px;">
+                                                            <input type="checkbox" autocomplete="off" checked="" style="margin-top: 0px;" id="Custom_Object_all_ids" value="Custom_Object_all_ids"/>
+                                                            <span class="glyphicon glyphicon glyphicon-asterisk"></span>
+                                                        </label>
+                                                    </div>
+                                                </th>
+                                                <th style="text-align: center;">Name</th>
+                                            </tr>
+                                        </thead>
+                                        <!-- Dynamic content -->
+                                        <tbody id="custom-object-list"></tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Apex Classes -->
+                        <div class="panel panel-default" style="margin-bottom: 0px;">
+                            <div class="panel-heading">
+                                <div class="material-switch pull-right">
+                                    <input id="apex-classes-section" name="apex-classes-section" type="checkbox" data-on="Add" data-off="No" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-size="mini"/>
+                                    <label for="apex-classes-section" class="label-primary"></label>
+                                </div>
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-apex-class" aria-expanded="true" class="">
+                                        <i style="margin-right: 5px;" class="glyphicon glyphicon-triangle-bottom"></i>
+                                        Apex Classes (<b id="ajax-cl_size_preview"></b>)
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse-apex-class" class="panel-collapse collapse" aria-expanded="true">
+                                <div class="panel-body">
+                                    <!-- content -->
+                                    <!-- TODO - remove if doesn't work -->
+                                    <table class="table table-bordered table-hover table-striped" id="search-package-xml">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center;width:10%;">
+                                                    <div class="btn-group" data-toggle="buttons" style="">
+                                                        <label class="btn btn-primary active" style="height: 26px;padding-left: 6px;padding-right: 6px;padding-bottom: 3px;padding-top: 3px;">
+                                                            <input type="checkbox" autocomplete="off" checked="" style="margin-top: 0px;" id="Apex_Classes_all_ids" value="Apex_Classes_all_ids"/>
+                                                            <span class="glyphicon glyphicon glyphicon-asterisk"></span>
+                                                        </label>
+                                                    </div>
+                                                </th>
+                                                <th style="text-align: center;">Name</th>
+                                            </tr>
+                                        </thead>
+                                        <!-- Dynamic content -->
+                                        <tbody id="apex-classes-list"></tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Apex Components -->
+                        <div class="panel panel-default" style="margin-bottom: 0px;">
+                            <div class="panel-heading">
+                                <div class="material-switch pull-right">
+                                    <input id="apex-components-section" name="apex-components-section" type="checkbox" data-on="All" data-off="No" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-size="mini"/>
+                                    <label for="apex-components-section" class="label-success"></label>
+                                </div>
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-apex-component" aria-expanded="true" class="">
+                                        <i style="margin-right: 5px;" class="glyphicon glyphicon-triangle-bottom"></i>
+                                        Apex Components (<b id="ajax-comp_size_preview"></b>)
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse-apex-component" class="panel-collapse collapse" aria-expanded="true">
+                                <div class="panel-body">
+                                    <!-- content -->
+                                    <ul style="margin-bottom: 10px;" id="apex-components-list"></ul>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Apex Pages -->
+                        <div class="panel panel-default" style="margin-bottom: 0px;">
+                            <div class="panel-heading">
+                                <div class="material-switch pull-right">
+                                    <input id="apex-pages-section" name="apex-pages-section" type="checkbox"  data-on="All" data-off="No" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-size="mini"/>
+                                    <label for="apex-pages-section" class="label-success"></label>
+                                </div>
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-apex-page" aria-expanded="true" class="">
+                                        <i style="margin-right: 5px;" class="glyphicon glyphicon-triangle-bottom"></i>
+                                        Apex Pages (<b id="ajax-pa_size_preview"></b>)
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse-apex-page" class="panel-collapse collapse" aria-expanded="true">
+                                <div class="panel-body">
+                                    <!-- content -->
+                                    <ul style="margin-bottom: 10px;" id="apex-pages-list"></ul>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Apex Triggers -->
+                        <div class="panel panel-default" style="margin-bottom: 0px;">
+                            <div class="panel-heading">
+                                <div class="material-switch pull-right">
+                                    <input id="apex-triggers-section" name="apex-triggers-section" type="checkbox" data-on="All" data-off="No" data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-size="mini"/>
+                                    <label for="apex-triggers-section" class="label-success"></label>
+                                </div>
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-apex-trigger" aria-expanded="true" class="">
+                                        <i style="margin-right: 5px;" class="glyphicon glyphicon-triangle-bottom"></i>
+                                        Apex Triggers (<b id="ajax-t_size_preview"></b>)
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapse-apex-trigger" class="panel-collapse collapse" aria-expanded="true">
+                                <div class="panel-body">
+                                    <!-- content -->
+                                    <ul style="margin-bottom: 10px;" id="apex-triggers-list"></ul>
+
+                                </div>
+                            </div>
+                        </div>
+                        <ul class="list-group" id="create-package-xml">
+                            <li class="list-group-item" style="text-align: center;">
+                                <button class="btn btn-warning btn-sm" id="preview-xml-btn">
+                                    <i class=" icon-angle-circled-right"></i>
+                                    <span><b>Preview XML</b></span>
+                                </button>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+
+                <!-- Text Area section -->
+                <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+                    <div class="panel panel-success" style="margin-bottom: 0px;" id="textpredata">
+                        <div style="text-align: center;" class="panel-heading">
+                            <button class="btn btn-warning btn-sm" data-clipboard-target="#textdata" id="number_save_clipboard_field" style="margin-left:30px;/* margin-top:15px; */margin-right:10px;">
+                               <b width="20" class="icon-paste" style="margin-right: 5px;">Copy Data to Clipboard</b>
+                            </button>
+                            <!-- download package.xml -->
+                            <button class="btn btn-success btn-sm" style="text-align: center;" id="dl-package-xml-btn">
+                                  <i class="icon-download-cloud"></i>
+                                  <span><b>Download</b></span>
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- XML code will be dynamically created here - (id='textpredata').next() -->
+
+                </div>
+                <!-- End of Text Area Field -->
+
+            </div>
+            <!-- End of Left Panel -->
+        </div>
+        <!-- End of Left Row -->
+
+    </div>
+    <!-- End of Package.xml -->
+
+</div>
+
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="dash-js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="dash-js/bootstrap.min.js"></script>
+
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+{% endblock %}

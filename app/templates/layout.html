@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Groundswell Automation</title>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<!-- web font  -->
+	<link href='http://fonts.googleapis.com/css?family=Roboto:100,300,400' rel='stylesheet' type='text/css'>
+	<!-- icon fonts -->
+	<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='font-icons/custom-icons/css/custom-icons.css')}}">
+	<!-- Custom css -->
+	<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/layout.css')}}">
+	<link type="text/css" id="colors" rel="stylesheet" href="{{ url_for('static', filename='css/sea-green.css')}}">
+
+	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap-theme.min.css" />
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+
+
+    {#  Custom scripts #}
+
+
+    {% block head_scripts %}
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/xml-convert.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/file-upload.js') }}"></script>
+
+
+</head>
+<header class="navbar-fixed-top">
+    <div id="mainHeader" role="banner" style="border-bottom-width: 0px;">
+            <nav class="navbar navbar-default scrollMenu" role="navigation">
+                <div class="navbar-header">
+                    <!-- responsive navigation -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <!-- Logo -->
+                    <img src="{{ url_for('static', filename='gs-logo.png') }}" alt="HIDEO website template" class="img-responsive col-xs-hidden"
+                         style="height: 90px;padding-left: 40px;"/>
+                </div>
+                <div class="collapse navbar-collapse" id="mainMenu" style="padding-right: 40px;">
+                    <ul class="nav navbar-nav pull-right">
+
+                        {% if login_session %}
+
+                        <li class="primary">
+                            <a href="{{ url_for('login.dashboard') }}" class="firstLevel hasSubMenu" >Create Excel</a>
+                        </li>
+
+                        <li class="sep" style="color: grey;"></li>
+
+                        <li class="primary">
+                            <a href="{{ url_for('labels.view_labels') }}" class="firstLevel hasSubMenu" >Track Labels</a>
+                        </li>
+
+                        <li class="sep" style="color: grey;"></li>
+
+                        <li class="primary">
+                            <a href="" class="firstLevel hasSubMenu" >Track Components</a>
+                        </li>
+
+                        <li class="sep" style="color: grey;"></li>
+
+                        <li class="primary">
+                            <a href="" class="firstLevel hasSubMenu" >Create Package.xml</a>
+                        </li>
+
+                        <li class="sep" style="color: grey;"></li>
+
+                        {# Go to a logout page #}
+                        <li class="primary">
+                            <a href="{{ url_for('login.logout') }}" class="firstLevel hasSubMenu" >{{ login_session }}</a>
+                        </li>
+                        {% else %}
+
+                        {# Go to Log In Page #}
+                        <li class="primary">
+                            <a href="{{ url_for('login.authenticate_login') }}" class="firstLevel hasSubMenu" >Log In</a>
+                        </li>
+
+                        {% endif %}
+
+                    </ul>
+                </div>
+            </nav>
+        </div>
+</header>
+
+<body style="margin-top: 100px;padding-top:10px;">
+    {% block body %}
+    {% endblock %}
+
+    {{ data }}
+
+
+{#  Scripts  #}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.6.0/clipboard.min.js"></script>
+    <script src="{{ url_for('static', filename='js/modernizr-2.6.1.min.js')}}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script type="text/javascript" src={{ url_for('static', filename='js-plugin/easing/jquery.easing.1.3.js')}}></script>
+	<script type="text/javascript" src={{ url_for('static', filename='js/custom.js')}}></script>
+    {% block scripts %}
+    {% endblock %}
+
+
+</body>
+</html>
+

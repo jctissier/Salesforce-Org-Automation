@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{# Custom Script #}
+{% block head_scripts %}
+    <script src="{{ url_for('static', filename='js/labels/view.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+<div class="container" style="text-align: center;" id="loading-gif">
+    <img src="{{ url_for('static', filename='loading.gif') }}" height="70" width="auto"/>
+    <br>
+    Retrieving data from Salesforce...
+</div>
+
+<div class="container">
+  {#  SF Login Messages  #}
+    <div id="successAlert" class="alert alert-success" role="alert" style="display:none;margin-top:20px;font-weight: bold;"></div>
+    <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;margin-top:20px;font-weight: bold;"></div>
+</div>
+
+<div class="container" id="display-labels-content" style="display: none;">
+    <div style="margin-bottom: 10px;text-align: center;">
+        {#  Login Button  #}
+        <div style="text-align: center;padding-top: 25px;">
+            <button class="btn btn-warning" style="margin-right: 10px;" id="ajax_login">
+                <i class=" icon-angle-circled-right"></i>
+                <span><b>Track Labels</b></span>
+            </button>
+            <button class="btn btn-warning" style="margin-right: 10px;" id="ajax_login">
+                <i class=" icon-angle-circled-right"></i>
+                <span><b>Track Labels</b></span>
+            </button>
+            <button class="btn btn-warning" style="margin-right: 5px;" id="ajax_login">
+                <i class=" icon-angle-circled-right"></i>
+                <span><b>Track Labels</b></span>
+            </button>
+        </div>
+    </div>
+
+<p>{{ session }}</p>
+
+</div>
+
+
+{% endblock %}

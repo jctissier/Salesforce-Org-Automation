@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{# Custom Script #}
+{% block head_scripts %}
+    <script src="{{ url_for('static', filename='js/login/login.js') }}"></script>
+{% endblock %}
+
+{# Login Form #}
+{% block body %}
+<div class="container">
+
+    <form class="boxFocus" data-toggle="validator" role="form" id="login_user" action="/login" method="post">
+        <div class="form-group form-inline" style="padding-bottom: 15px;margin-top: 25px;">
+            <label for="inputUsername" class="control-label" style="width: 20%;">Username</label>
+            <input type="text" class="form-control" id="inputUsername" placeholder="Enter Username..." style="width: 70%;" required>
+        </div>
+
+        <div class="form-group form-inline" style="padding-bottom: 15px;">
+            <label for="inputPassword" class="control-label" style="width: 20%;">Password</label>
+            <input type="password" class="form-control" id="inputPassword" placeholder="Enter Password..." style="width: 70%;" required>
+        </div>
+
+        <div class="form-group form-inline" style="padding-bottom: 15px;">
+            <label for="inputToken" class="control-label" style="width: 20%;">Token</label>
+            <input type="text" class="form-control" id="inputToken" placeholder="If forgotten: My Profile > Personal > Reset My Security Token " style="width: 70%;" required>
+        </div>
+
+
+        {#  Login Button  #}
+        <div class="container" style="text-align: center;display: none;" id="loading-gif">
+            <img src="{{ url_for('static', filename='loading.gif') }}" height="70" width="auto"/>
+            <br>
+            Logging In...
+        </div>
+        <div style="text-align: center;padding-top: 25px;" id="login-button">
+            <button class="btn-md btn btn-info start" id="login_user_btn">
+                  <i class="icon-login"></i>
+                  <span>Authorize Log In to Sandbox</span>
+            </button>
+        </div>
+
+
+        {#  Use Feedback Messages  #}
+        <div id="successAlert" class="alert alert-success" role="alert" style="display:none;margin-top:20px;font-weight: bold;"></div>
+        <div id="errorAlert" class="alert alert-danger" role="alert" style="display:none;margin-top:20px;font-weight: bold;"></div>
+
+    </form>
+
+    <div class="from-inline" style="margin-bottom: 10px;margin-top: 10px;padding-top:20px;text-align: center;">
+        <button class="btn btn-warning" style="display: none;margin-right: 5px;" id="gs-dashboard">
+            <i class=" icon-angle-circled-right"></i>
+            <span><b>Dashboard</b></span>
+        </button>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
