@@ -81,7 +81,7 @@ def dashboard():
 @create_login.route('/dashboard-ajax', methods=['POST'])
 def dashboard_ajax():
     status, sf, session_id, instance = org_login.login_attempt(g.user, g.password, g.token)
-    c_list, c_size = org_login.dashboard_custom_objects(sf)
+    c_list, c_size = org_login.dashboard_custom_objects(sf, session_id, instance)
     u_list, u_size = org_login.dashboard_sobject_query(sf, 'User')
     p_list, p_size = org_login.dashboard_sobject_query(sf, 'Profile')
     ur_list, ur_size = org_login.dashboard_sobject_query(sf, 'UserRole')
@@ -115,7 +115,10 @@ def dashboard_ajax():
             'pa_list': pa_list,
 
             't_size': t_size,
-            't_list': t_list
+            't_list': t_list,
+
+            # Globals
+            'instance': instance
         }
     )
 

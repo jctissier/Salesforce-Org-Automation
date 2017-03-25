@@ -1,5 +1,6 @@
 from simple_salesforce import Salesforce, SalesforceLogin, SalesforceAuthenticationFailed
-import html
+import requests
+
 
 
 """Login Method"""
@@ -11,9 +12,12 @@ def login_attempt(username, password, token):
     :param username, password, token: required fields
     :return: status(200=OK, 401=Error), simple_salesforce object, current session id, sandbox instance
     """
-    sf, session_id, instance = None, None, None
 
     try:
+        sf = None
+        session_id = None
+        instance = None
+
         sf = Salesforce(username=username, password=password, security_token=token, sandbox=True)
         session_id, instance = SalesforceLogin(username=username, password=password, security_token=token, sandbox=True)
         print(instance)
@@ -29,13 +33,43 @@ def login_attempt(username, password, token):
 """Dashboard Methods (Tab 1)"""
 
 
-def dashboard_custom_objects(sf):
-    print(sf)
-    custom_objects = [x["name"] for x in sf.describe()["sobjects"] if "__c" in str(x)]
-    size = len(custom_objects)
-    print(custom_objects, size)
+def get_metadata(link, sf, session_id, instance):
+    """
+    Retrieve particular metadata about a Salesforce SObject
+    :param link: link to retrieve metadata in org
+    :return: content of the response (metadata)
+    """
 
-    return custom_objects, size
+    response = requests.get("https://" + instance + link,
+                            headers=sf.headers, cookies={'sid': session_id})
+
+    json_data = response.json()
+
+    # pprint(json_data)
+
+    # get_fields.find_components(json_data)
+
+
+    # get_fields.make_custom_objects_fields_list(json_data)                 # Use this to get all the fields from a custom object (different for ApexPages)
+
+    return json_data
+
+
+def dashboard_custom_objects(sf, session_id, instance):
+    print(sf, instance, session_id)
+    json_data = get_metadata("/services/data/v39.0/tooling/query/?q=Select+id,DeveloperName+from+CustomObject",
+                             sf, session_id, instance)
+    size = len(json_data['records'])
+
+    names = []
+    ids = []
+    for i in range(size):
+        ids.append([json_data['records'][i]['Id']])
+        names.append(json_data['records'][i]['DeveloperName'] + "__c")
+
+    print(names, ids, size)
+
+    return [names, ids], size
 
 
 def run_query(sf, soql):

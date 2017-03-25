@@ -26,8 +26,7 @@ $(document).ready(function() {
 
 
 				/* Create Package.xml */
-				$('#panel-users-detail-test').append(create_xml_list_custom(data.c_list, "Custom_Object"));
-				$('#custom-object-list').append(create_xml_list_custom(data.c_list, "Custom_Object"));
+				$('#custom-object-list').append(create_xml_list(data.c_list, "Custom_Object"));
 				$('#apex-classes-list').append(create_xml_list(data.cl_list, "Apex_Class"));
 				$('#apex-components-list').append(create_xml_list(data.comp_list, "Apex_Component"));
 				$('#apex-pages-list').append(create_xml_list(data.pa_list, "Apex_Page"));
@@ -38,39 +37,39 @@ $(document).ready(function() {
 				$('#ajax-c_size').text(data.c_size).show();								//main panel
 				$('#ajax-c_size_detail').text(data.c_size).show();
 				$('#ajax-c_size_preview').text(data.c_size).show();
-				$('#panel-custom-object-detail').append(custom_object(data.c_list));	//panel rows
+				$('#panel-custom-object-detail').append(sobjects(data.c_list, data.instance));	//panel rows
 
 				$('#ajax-u_size').text(data.u_size).show();
 				$('#ajax-u_size_detail').text(data.u_size).show();
-				$('#panel-users-detail').append(sobjects(data.u_list));
+				$('#panel-users-detail').append(sobjects(data.u_list, data.instance));
 
 				$('#ajax-p_size').text(data.p_size).show();
 				$('#ajax-p_size_detail').text(data.p_size).show();
-				$('#panel-profiles-detail').append(sobjects(data.p_list));
+				$('#panel-profiles-detail').append(sobjects(data.p_list, data.instance));
 
 				$('#ajax-ur_size').text(data.ur_size).show();
 				$('#ajax-ur_size_detail').text(data.ur_size).show();
-				$('#panel-roles-detail').append(sobjects(data.ur_list));
+				$('#panel-roles-detail').append(sobjects(data.ur_list, data.instance));
 
 				$('#ajax-cl_size').text(data.cl_size).show();
 				$('#ajax-cl_size_detail').text(data.cl_size).show();
 				$('#ajax-cl_size_preview').text(data.cl_size).show();
-				$('#panel-classes-detail').append(sobjects(data.cl_list));
+				$('#panel-classes-detail').append(sobjects(data.cl_list, data.instance));
 
 				$('#ajax-pa_size').text(data.pa_size).show();
 				$('#ajax-pa_size_detail').text(data.pa_size).show();
 				$('#ajax-pa_size_preview').text(data.pa_size).show();
-				$('#panel-pages-detail').append(sobjects(data.pa_list));
+				$('#panel-pages-detail').append(sobjects(data.pa_list, data.instance));
 
 				$('#ajax-comp_size').text(data.comp_size).show();
 				$('#ajax-comp_size_detail').text(data.comp_size).show();
 				$('#ajax-comp_size_preview').text(data.comp_size).show();
-				$('#panel-components-detail').append(sobjects(data.comp_list));
+				$('#panel-components-detail').append(sobjects(data.comp_list, data.instance));
 
 				$('#ajax-t_size').text(data.t_size).show();
 				$('#ajax-t_size_detail').text(data.t_size).show();
 				$('#ajax-t_size_preview').text(data.t_size).show();
-				$('#panel-triggers-detail').append(sobjects(data.t_list));
+				$('#panel-triggers-detail').append(sobjects(data.t_list, data.instance));
 
 
 				$('#errorAlert').hide();
@@ -283,21 +282,7 @@ $(document).ready(function() {
 
 /* Helper Functions */
 
-function custom_object(c_list) {
-	var start = '<tr>';
-	var end = '</tr>';
-	var col = '';
-	console.log(c_list);
-	console.log(c_list[0]);
-	console.log(c_list.length);
-	for(var i=0; i < c_list.length; i++)
-		col += start + '<td>' + c_list[i] + '</td>' + end;
-	console.log(col);
-	return col;
-}
-
-
-function sobjects(list) {
+function sobjects(list, instance) {
 	var start = '<tr>';
 	var end = '</tr>';
 	var col = '';
@@ -305,27 +290,9 @@ function sobjects(list) {
 	console.log(list[0]);
 	console.log(list.length);
 	for(var i=0; i < list[0].length; i++)
-		col += start + '<td>' + list[1][i] + '</td>\n' + '<td>' + list[0][i] + '</td>' + end;
+		col += start + '<td><a target=\"_blank\" href=\"' + instance + '/' + list[1][i] + '\">' + list[1][i] + '</a></td>\n' + '<td>' + list[0][i] + '</td>' + end;
 	console.log(col);
 	return col;
-}
-
-function create_xml_list_custom(list, object) {
-	var s1 = '<div class="btn-group" data-toggle="buttons"><label class="btn btn-success active" style="padding-left: 6px;padding-right: 6px;padding-top: 3px;padding-bottom: 3px;height: 26px;">' +
-		'<input type="checkbox" autocomplete="off" checked="" style="margin-top: 0px;" ';
-	var s2 = '"/><span class="glyphicon glyphicon-ok"></span></label></div>';
-	var data = '';
-	for (var i=0; i < list.length; i++){
-		data = data +
-			   '<tr>' +
-					'<td style="text-align: center;">' + s1 + 'id=\"' + object + [i] + '\" ' + 'value=\"' + object + '_' + list[i] + s2 + '</td>' +
-					'<td>' + list[i] + '</td>' +
-				'</tr>\n' +
-				'<br>\n';
-	}
-	console.log(data);
-
-	return data;
 }
 
 function create_xml_list(list, object) {
