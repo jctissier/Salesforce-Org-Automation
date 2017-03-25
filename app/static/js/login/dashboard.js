@@ -277,7 +277,7 @@ $(document).ready(function() {
 	});
 	$('[data-action="filter"]').filterTable();
 })(jQuery);
-	
+
 });
 
 
@@ -311,16 +311,15 @@ function sobjects(list) {
 }
 
 function create_xml_list_custom(list, object) {
-	var s1 = '<div class="btn-group" data-toggle="buttons"><label class="btn btn-success active" style="height: 26px;padding-left: 6px;padding-right: 6px;padding-bottom: 3px;padding-top: 3px; ';
-	var s2 = '"><input type="checkbox" autocomplete="off" checked="" style="margin-top: 0px; "/><span class="glyphicon glyphicon-ok"></span></label></div>'
-	console.log(list);
-	console.log(object + [i]);
+	var s1 = '<div class="btn-group" data-toggle="buttons"><label class="btn btn-success active" style="padding-left: 6px;padding-right: 6px;padding-top: 3px;padding-bottom: 3px;height: 26px;">' +
+		'<input type="checkbox" autocomplete="off" checked="" style="margin-top: 0px;" ';
+	var s2 = '"/><span class="glyphicon glyphicon-ok"></span></label></div>';
 	var data = '';
 	for (var i=0; i < list.length; i++){
 		data = data +
 			   '<tr>' +
-					'<td style="text-align: center;">' + s1 + 'id=\'' + object + [i] + '\' ' + 'value=\'' + object + '_' + list[i] + s2 + '</td>' +
-					'<td>' + list[i] + '</td>'
+					'<td style="text-align: center;">' + s1 + 'id=\"' + object + [i] + '\" ' + 'value=\"' + object + '_' + list[i] + s2 + '</td>' +
+					'<td>' + list[i] + '</td>' +
 				'</tr>\n' +
 				'<br>\n';
 	}
@@ -330,13 +329,14 @@ function create_xml_list_custom(list, object) {
 }
 
 function create_xml_list(list, object) {
-	var s1 = '<div class="btn-group" data-toggle="buttons"><label class="btn btn-success active" 3style="height: 26px;padding-left: 6px;padding-right: 6px;padding-bottom: 3px;padding-top: 3px; ';
-	var s2 = ' "><input type="checkbox" autocomplete="off" checked="" style="margin-top: 0px; "/><span class="glyphicon glyphicon-ok"></span></label></div>'
+	var s1 = '<div class="btn-group" data-toggle="buttons"><label class="btn btn-success active" style="padding-left: 6px;padding-right: 6px;padding-top: 3px;padding-bottom: 3px;height: 26px;">' +
+		'<input type="checkbox" autocomplete="off" checked="" style="margin-top: 0px;" ';
+	var s2 = '"/><span class="glyphicon glyphicon-ok"></span></label></div>';
 	var data = '';
 	for (var i=0; i < list[0].length; i++){
 		data = data +
 			'<tr>' +
-				'<td>' + s1 + 'id=\'' + object + [i] + '\' ' + 'value=\'' + object + '_' + list[0][i] + s2 + '</td>' +
+				'<td style="text-align: center;">' + s1 + 'id=\"' + object + [i] + '\" ' + 'value=\"' + object + '_' + list[0][i] + s2 + '</td>' +
 				'<td>' + list[0][i] + '</td>' +
 			'</tr>\n' +
 			'<br>\n';

@@ -16,6 +16,7 @@ def login_attempt(username, password, token):
     try:
         sf = Salesforce(username=username, password=password, security_token=token, sandbox=True)
         session_id, instance = SalesforceLogin(username=username, password=password, security_token=token, sandbox=True)
+        print(instance)
     except SalesforceAuthenticationFailed as e:
         print(e)
         return 401, sf, session_id, instance
